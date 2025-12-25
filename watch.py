@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Watch mode for BookCrafter - live preview with auto-rebuild."""
 
-import os
 import sys
 import time
 import threading
@@ -14,11 +13,11 @@ from watchdog.events import FileSystemEventHandler
 # Add parent to path for imports
 sys.path.insert(0, str(Path(__file__).parent))
 
-from build import (
-    load_file, load_styles, parse_frontmatter_file, parse_content_file,
-    parse_backmatter_file, render_frontmatter, render_backmatter, assemble_book,
-    config, BASE_DIR, CONTENT_DIR, STYLES_DIR,
+from build import setup_instance, load_file, load_styles, STYLES_DIR
+from content_parser import (
+    parse_frontmatter_file, parse_content_file, parse_backmatter_file,
 )
+from templates import render_frontmatter, render_backmatter, assemble_book
 
 # Configuration
 PORT = 8000
@@ -59,11 +58,14 @@ class RebuildHandler(FileSystemEventHandler):
 class LiveBuilder:
     """Manages live rebuilding of the book."""
 
-    def __init__(self, target=None, typography=None, pages=200):
+    def __init__(self, config, content_dir, output_dir, target=None, typography=None, pages=200):
+        self.config = config
+        self.content_dir = content_dir
+        self.output_dir = output_dir
         self.target = target
         self.typography = typography
         self.pages = pages
-        self.html_path = BASE_DIR / f"{config['slug']}.html"
+        self.html_path = output_dir / f"{config['slug']}.html"
         self.rebuild_count = 0
 
     def rebuild(self):
@@ -77,7 +79,7 @@ class LiveBuilder:
             start = time.time()
 
             # Load content
-            content_config = config.get("content", {})
+            content_config = self.config.get("content", {})
             frontmatter_raw = load_file(content_config.get("frontmatter", "FrontMatter.md"))
             content_raw = load_file(content_config.get("content", "Content.md"))
             backmatter_raw = load_file(content_config.get("backmatter", "Backmatter.md"))
@@ -91,8 +93,8 @@ class LiveBuilder:
             css = load_styles(target=self.target, page_count=self.pages, typography=self.typography)
 
             # Render
-            frontmatter_html = render_frontmatter(frontmatter, content['toc'], config)
-            backmatter_html = render_backmatter(backmatter, config)
+            frontmatter_html = render_frontmatter(frontmatter, content['toc'], self.config)
+            backmatter_html = render_backmatter(backmatter, self.config)
 
             # Assemble with live reload script
             full_html = assemble_book(
@@ -100,7 +102,7 @@ class LiveBuilder:
                 content['html'],
                 backmatter_html,
                 css,
-                config
+                self.config
             )
 
             # Add live reload script
@@ -145,17 +147,20 @@ class QuietHandler(http.server.SimpleHTTPRequestHandler):
             super().log_message(format, *args)
 
 
-def serve(port):
+def serve(directory, port):
     """Start HTTP server in background."""
-    os.chdir(BASE_DIR)
+    import os
+    os.chdir(directory)
     with socketserver.TCPServer(("", port), QuietHandler) as httpd:
         httpd.serve_forever()
 
 
 def main():
     import argparse
+    import build
 
     parser = argparse.ArgumentParser(description="Watch and rebuild book on changes")
+    parser.add_argument("--instance", "-i", help="Instance to build")
     parser.add_argument("--target", "-t", help="Target platform (e.g., pumbo:a5_paperback_roman)")
     parser.add_argument("--typography", "-y", help="Typography preset")
     parser.add_argument("--pages", "-p", type=int, default=200, help="Estimated page count")
@@ -163,7 +168,13 @@ def main():
     parser.add_argument("--no-browser", action="store_true", help="Don't open browser")
     args = parser.parse_args()
 
+    # Set up instance (this sets build.CONTENT_DIR, build.OUTPUT_DIR, etc.)
+    config = setup_instance(args.instance)
+
     builder = LiveBuilder(
+        config=config,
+        content_dir=build.CONTENT_DIR,
+        output_dir=build.OUTPUT_DIR,
         target=args.target,
         typography=args.typography,
         pages=args.pages
@@ -172,12 +183,12 @@ def main():
     # Initial build
     builder.rebuild()
 
-    # Start HTTP server in background
-    server_thread = threading.Thread(target=serve, args=(args.port,), daemon=True)
+    # Start HTTP server in background (serve from output dir)
+    server_thread = threading.Thread(target=serve, args=(build.OUTPUT_DIR, args.port), daemon=True)
     server_thread.start()
 
     print(f"\nServer running at http://localhost:{args.port}/")
-    print(f"Watching: {CONTENT_DIR}, {STYLES_DIR}")
+    print(f"Watching: {build.CONTENT_DIR}, {STYLES_DIR}")
     print("Press Ctrl+C to stop\n")
 
     # Open browser
@@ -188,8 +199,10 @@ def main():
     # Set up file watcher
     handler = RebuildHandler(builder)
     observer = Observer()
-    observer.schedule(handler, str(CONTENT_DIR), recursive=True)
+    observer.schedule(handler, str(build.CONTENT_DIR), recursive=True)
     observer.schedule(handler, str(STYLES_DIR), recursive=True)
+    if build.INSTANCE_STYLES_DIR and build.INSTANCE_STYLES_DIR.exists():
+        observer.schedule(handler, str(build.INSTANCE_STYLES_DIR), recursive=True)
     observer.start()
 
     try:

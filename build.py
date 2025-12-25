@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """BookCrafter - Python-based book building tool using WeasyPrint."""
 
-import os
 import sys
 import argparse
 import importlib.util
@@ -14,7 +13,6 @@ from content_parser import (
     parse_frontmatter_file,
     parse_content_file,
     parse_backmatter_file,
-    parse_decisions_file,
 )
 from templates import (
     render_frontmatter,
@@ -166,10 +164,11 @@ def load_styles(target=None, page_count=200, typography=None):
             combined_css += css_content + "\n"
 
     # Load instance style overrides (if they exist)
-    instance_brand = INSTANCE_STYLES_DIR / "brand.css"
-    if instance_brand.exists():
-        combined_css += "\n/* Instance brand overrides */\n"
-        combined_css += instance_brand.read_text() + "\n"
+    if INSTANCE_STYLES_DIR:
+        instance_brand = INSTANCE_STYLES_DIR / "brand.css"
+        if instance_brand.exists():
+            combined_css += "\n/* Instance brand overrides */\n"
+            combined_css += instance_brand.read_text() + "\n"
 
     # Add platform-specific CSS if target specified
     if target:
@@ -240,7 +239,7 @@ def build_epub(frontmatter, content, backmatter, output_path):
     book.add_metadata(None, 'meta', '', {'name': 'generator', 'content': 'BookCrafter'})
 
     # Add cover image
-    cover_path = CONTENT_DIR / config.get("cover", "cover.png")
+    cover_path = ASSETS_DIR / config.get("cover", "cover.png")
     if cover_path.exists():
         cover_content = cover_path.read_bytes()
         book.set_cover("images/cover.png", cover_content)
@@ -340,10 +339,6 @@ def build_epub(frontmatter, content, backmatter, output_path):
     # Split by h1 (Parts) containing h2 (Chapters)
 
     html_content = content['html']
-
-    # Parse into parts and chapters
-    re.compile(r'<h1[^>]*>(.*?)</h1>', re.DOTALL)
-    re.compile(r'<h2[^>]*>(.*?)</h2>', re.DOTALL)
 
     # Split on h1 tags to get parts
     h1_splits = re.split(r'(<h1[^>]*>.*?</h1>)', html_content, flags=re.DOTALL)
@@ -650,13 +645,11 @@ def main():
     frontmatter_raw = load_file(content_config.get("frontmatter", "FrontMatter.md"))
     content_raw = load_file(content_config.get("content", "Content.md"))
     backmatter_raw = load_file(content_config.get("backmatter", "Backmatter.md"))
-    decisions_raw = load_file(content_config.get("decisions", "Decisions.md"))
 
     # Parse content
     frontmatter = parse_frontmatter_file(frontmatter_raw) if frontmatter_raw else {}
     content = parse_content_file(content_raw) if content_raw else {'html': '', 'toc': []}
     backmatter = parse_backmatter_file(backmatter_raw) if backmatter_raw else {}
-    parse_decisions_file(decisions_raw) if decisions_raw else {}
 
     # Load styles (with optional target and typography)
     css = load_styles(target=args.target, page_count=args.pages, typography=args.typography)
@@ -759,14 +752,17 @@ def main():
             sys.exit(3)
 
     elif args.command == "preview":
+        import webbrowser
         output_path = OUTPUT_DIR / f"{slug}.html"
         output_path.write_text(full_html)
-        os.system(f"open {output_path}")
+        webbrowser.open(f"file://{output_path}")
 
     elif args.command == "watch":
         # Delegate to watch.py
         import subprocess
         cmd = [sys.executable, str(BASE_DIR / "watch.py")]
+        if args.instance:
+            cmd.extend(["--instance", args.instance])
         if args.target:
             cmd.extend(["--target", args.target])
         if args.typography:
