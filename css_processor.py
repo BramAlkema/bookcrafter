@@ -11,12 +11,14 @@ from pathlib import Path
 
 
 def extract_css_variables(css: str) -> dict:
-    """Extract CSS custom properties from :root block."""
+    """Extract CSS custom properties from all :root blocks.
+
+    Later :root blocks override earlier ones (for instance overrides).
+    """
     variables = {}
 
-    # Find :root block
-    root_match = re.search(r':root\s*\{([^}]+)\}', css)
-    if root_match:
+    # Find all :root blocks and merge them
+    for root_match in re.finditer(r':root\s*\{([^}]+)\}', css):
         root_content = root_match.group(1)
         # Extract --name: value pairs
         for match in re.finditer(r'--([a-zA-Z0-9-]+)\s*:\s*([^;]+);', root_content):
@@ -112,8 +114,8 @@ def strip_print_media(css: str) -> str:
 
 
 def strip_css_variables_block(css: str) -> str:
-    """Remove :root block after variables are resolved."""
-    return re.sub(r':root\s*\{[^}]*\}', '', css)
+    """Remove all :root blocks after variables are resolved."""
+    return re.sub(r':root\s*\{[^}]*\}', '', css, flags=re.MULTILINE)
 
 
 def rename_fonts_for_epub(css: str) -> str:
@@ -170,23 +172,35 @@ def process_for_pdf(css: str) -> str:
     return css
 
 
-def load_and_process(styles_dir: Path, output_format: str = 'pdf') -> str:
+def load_and_process(styles_dir: Path, output_format: str = 'pdf',
+                     instance_styles_dir: Path = None) -> str:
     """Load CSS files and process for target format.
 
     Args:
         styles_dir: Path to styles directory
         output_format: 'pdf' or 'epub'
+        instance_styles_dir: Optional path to instance-specific styles
 
     Returns:
         Processed CSS string
     """
-    css_files = ['brand.css', 'base.css']
+    # Load base brand.css first
     combined_css = ""
+    brand_path = styles_dir / 'brand.css'
+    if brand_path.exists():
+        combined_css += brand_path.read_text() + "\n"
 
-    for css_file in css_files:
-        css_path = styles_dir / css_file
-        if css_path.exists():
-            combined_css += css_path.read_text() + "\n"
+    # Load instance brand overrides (before base.css, so variables are set)
+    if instance_styles_dir:
+        instance_brand = instance_styles_dir / "brand.css"
+        if instance_brand.exists():
+            combined_css += "\n/* Instance brand overrides */\n"
+            combined_css += instance_brand.read_text() + "\n"
+
+    # Load base.css (uses the variables)
+    base_path = styles_dir / 'base.css'
+    if base_path.exists():
+        combined_css += base_path.read_text() + "\n"
 
     if output_format == 'epub':
         return process_for_epub(combined_css)

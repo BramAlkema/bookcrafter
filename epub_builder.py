@@ -35,7 +35,7 @@ def build(frontmatter, content, backmatter, config, output_path):
         book.set_cover("images/cover.png", cover_content)
 
     # Load CSS from shared stylesheets, processed for EPUB (variables resolved)
-    epub_css = load_css_for_format(instance.STYLES_DIR, 'epub')
+    epub_css = load_css_for_format(instance.STYLES_DIR, 'epub', instance.INSTANCE_STYLES_DIR)
     css_item = epub.EpubItem(
         uid="style",
         file_name="styles/main.css",
