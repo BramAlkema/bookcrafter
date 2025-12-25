@@ -1,0 +1,47 @@
+/* Screen PDF - optimized for digital viewing */
+/* No bleed, RGB colors, clickable links */
+
+@page {
+  size: A5;
+  margin: 15mm;  /* Smaller margins for screen */
+
+  @top-center {
+    content: string(chapter-title);
+    font-family: var(--font-body, "Helvetica Neue", sans-serif);
+    font-size: 9pt;
+    font-style: italic;
+    color: var(--color-text, #616773);
+  }
+
+  @bottom-center {
+    content: counter(page);
+    font-family: var(--font-body, "Helvetica Neue", sans-serif);
+    font-size: 10pt;
+    color: var(--color-heading, #151824);
+  }
+}
+
+/* Clickable links with visible styling */
+a {
+  color: var(--color-electric, #3E00EE);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+a:hover {
+  color: var(--color-secondary, #2B024D);
+}
+
+/* Remove print-specific bleed and crop marks */
+.front-cover,
+.back-cover {
+  margin: -15mm;
+  padding: 15mm;
+}
+
+/* Brighter colors for screen */
+:root {
+  --color-primary: #0a0530;
+  --color-secondary: #3a0570;
+  --color-accent: #c49900;
+}

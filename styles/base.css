@@ -1,0 +1,937 @@
+/* Base Book Stylesheet - Generic styles for any book */
+/* Uses CSS variables from brand.css for customization */
+
+@page {
+  size: A5;
+  margin: 20mm 15mm 25mm 15mm;
+
+  @top-center {
+    content: string(chapter-title);
+    font-family: var(--font-body, "Helvetica Neue", sans-serif);
+    font-size: 9pt;
+    font-weight: 400;
+    font-style: italic;
+    color: var(--color-text, #616773);
+  }
+
+  @bottom-center {
+    content: counter(page);
+    font-family: var(--font-body, "Helvetica Neue", sans-serif);
+    font-size: 10pt;
+    font-weight: 500;
+    color: var(--color-heading, #151824);
+  }
+}
+
+@page :first {
+  @top-center { content: none; }
+  @bottom-center { content: none; }
+}
+
+@page :blank {
+  @top-center { content: none; }
+  @bottom-center { content: none; }
+}
+
+body {
+  font-family: var(--font-body, "Helvetica Neue", sans-serif);
+  font-size: 11pt;
+  font-weight: 400;
+  line-height: 1.7;
+  color: var(--color-text, #616773);
+  text-align: justify;
+  hyphens: auto;
+
+  /* OpenType features for professional typography */
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+  font-kerning: normal;
+  font-variant-ligatures: common-ligatures contextual;
+  font-variant-numeric: oldstyle-nums proportional-nums;
+
+  /* Hyphenation control */
+  hyphenate-limit-chars: 6 3 2;  /* min word length, before break, after break */
+  hyphenate-limit-lines: 2;      /* max consecutive hyphenated lines */
+  hyphenate-limit-last: always;  /* prevent hyphen on last line of paragraph */
+  hyphenate-limit-zone: 8%;      /* right margin zone for hyphenation */
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  /* Headings use lining figures (not oldstyle) */
+  font-variant-numeric: lining-nums tabular-nums;
+  font-feature-settings: "kern" 1, "liga" 1, "lnum" 1;
+  /* Headings should be left-aligned, not justified */
+  text-align: left;
+  hyphens: none;
+}
+
+h1 {
+  font-family: var(--font-display, "Helvetica Neue", sans-serif);
+  letter-spacing: 0.02em;
+  font-size: 26pt;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 1em;
+  page-break-before: always;
+  page-break-after: avoid;
+  string-set: chapter-title content();
+  color: var(--color-primary, #070325);
+}
+
+h1:first-of-type {
+  page-break-before: avoid;
+}
+
+h2 {
+  font-family: var(--font-display, "Helvetica Neue", sans-serif);
+  letter-spacing: 0.02em;
+  font-size: 16pt;
+  font-weight: 500;
+  margin-top: 0;
+  margin-bottom: 0.5em;
+  page-break-before: always;
+  page-break-after: avoid;
+  color: var(--color-secondary, #2B024D);
+  border-bottom: 2px solid var(--color-accent, #A88500);
+  padding-bottom: 0.3em;
+}
+
+h3 {
+  font-family: var(--font-display, "Helvetica Neue", sans-serif);
+  letter-spacing: 0.02em;
+  font-size: 13pt;
+  font-weight: 500;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  page-break-after: avoid;
+  break-after: avoid;
+  color: var(--color-heading, #151824);
+}
+
+h4 {
+  font-family: var(--font-display, "Helvetica Neue", sans-serif);
+  letter-spacing: 0.02em;
+  font-size: 11pt;
+  font-weight: 600;
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+  color: var(--color-heading, #151824);
+  page-break-after: avoid;
+  break-after: avoid;
+}
+
+/* Paragraphs */
+p {
+  margin: 0 0 0.8em 0;
+  text-indent: 0;
+  orphans: 4;
+  widows: 4;
+}
+
+p + p {
+  text-indent: 1.5em;
+}
+
+/* Paragraphs following headings - soft preference to stay with heading */
+h2 + p {
+  break-before: avoid;
+}
+
+/* Drop caps for chapter openings - disabled due to rendering issues */
+/* h2 + p::first-letter {
+  initial-letter: 3;
+  font-family: var(--font-display, "Helvetica Neue", sans-serif);
+  color: var(--color-primary, #070325);
+  font-weight: 600;
+  margin-right: 0.1em;
+} */
+
+/* Ensure drop cap paragraph has no indent */
+h2 + p {
+  text-indent: 0;
+}
+
+/* Utility: keep elements together across page breaks */
+.keep-together {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+/* Utility: force page break before */
+.page-break-before {
+  break-before: page;
+  page-break-before: always;
+}
+
+/* Utility: small caps (real small caps, not scaled) */
+.small-caps {
+  font-variant-caps: small-caps;
+  letter-spacing: 0.05em;
+}
+
+/* Utility: all small caps */
+.all-small-caps {
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.05em;
+}
+
+/* Optical margin alignment - hanging punctuation */
+p, blockquote, li {
+  hanging-punctuation: first last;
+}
+
+/* First line of body text after heading - optical alignment */
+h2 + p:first-line,
+h3 + p:first-line {
+  hanging-punctuation: first;
+}
+
+/* Block quotes */
+blockquote {
+  margin: 1.5em 0;
+  padding: 0.5em 1em;
+  border-left: 4px solid var(--color-accent, #A88500);
+  background: linear-gradient(90deg, rgba(168, 133, 0, 0.05) 0%, transparent 100%);
+  font-style: italic;
+  color: var(--color-heading, #151824);
+}
+
+blockquote p {
+  text-indent: 0;
+}
+
+/* Strong and emphasis */
+strong {
+  font-weight: 600;
+  color: var(--color-heading, #151824);
+}
+
+em {
+  font-style: italic;
+}
+
+/* Bold-lead paragraphs (acting as sub-headings) - keep with next */
+p > strong:first-child {
+  display: inline;
+}
+
+/* Bold-only paragraphs act as sub-headings - soft break preference */
+p:has(> strong:only-child) {
+  break-after: avoid;
+  margin-top: 1.2em;
+  margin-bottom: 0.3em;
+}
+
+/* Lists */
+ul, ol {
+  margin: 1em 0;
+  padding-left: 2em;
+}
+
+li {
+  margin-bottom: 0.3em;
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5em 0;
+  font-size: 9pt;
+  /* Allow tables to break across pages naturally */
+  /* Tables use lining tabular figures for alignment */
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* Tables following headings - soft preference */
+h3 + table,
+h4 + table {
+  margin-top: 0.5em;
+}
+
+p + table {
+  margin-top: 0.5em;
+}
+
+/* Allow paragraphs before tables to break naturally */
+/* This lets tables start on the current page and break across pages */
+
+th, td {
+  border: 1px solid var(--color-accent, #A88500);
+  padding: 0.3em 0.4em;
+  text-align: left;
+}
+
+th {
+  background: var(--color-secondary, #2B024D);
+  color: white;
+  font-weight: 600;
+  font-family: var(--font-display, "Helvetica Neue", sans-serif);
+}
+
+/* Repeat table headers on page breaks */
+thead {
+  display: table-header-group;
+}
+
+/* Horizontal rules */
+hr {
+  border: none;
+  border-top: 2px solid var(--color-accent, #A88500);
+  margin: 2em 0;
+}
+
+/* TTF formatting - accent first strong element */
+p strong:first-child {
+  color: var(--color-accent, #A88500);
+}
+
+/* Part titles (# headings) */
+h1[id^="part"] {
+  font-size: 32pt;
+  text-align: center;
+  margin-top: 30%;
+  color: var(--color-primary, #070325);
+  page-break-before: always;
+  break-before: page;
+}
+
+/* Appendix styling */
+h1[id^="appendix"] {
+  font-size: 20pt;
+}
+
+/* Code/technical text */
+code {
+  font-family: "Courier New", monospace;
+  font-size: 10pt;
+  background: rgba(62, 0, 238, 0.08);
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+  color: var(--color-electric, #3E00EE);
+}
+
+/* Fake expert quotes styling */
+p:has(em:first-child) {
+  margin-left: 1em;
+  font-size: 10pt;
+}
+
+/* Opening hooks */
+h2 + p:first-of-type {
+  font-size: 12pt;
+  font-style: italic;
+  margin-bottom: 1em;
+  color: var(--color-secondary, #2B024D);
+}
+
+/* Closing lines */
+p:last-of-type strong {
+  font-style: italic;
+}
+
+/* Title page styling */
+h1:first-of-type {
+  font-size: 36pt;
+  text-align: center;
+  margin-top: 20%;
+  border-bottom: none;
+}
+
+h1:first-of-type + h2 {
+  text-align: center;
+  border-bottom: none;
+  font-size: 18pt;
+  color: var(--color-accent, #A88500);
+  margin-top: 0;
+  page-break-before: avoid;
+}
+
+/* Frontmatter h2 should not force page breaks */
+.front-cover h2,
+.title-page h2,
+.half-title h2 {
+  page-break-before: avoid;
+}
+
+/* Print-specific */
+@media print {
+  a {
+    color: var(--color-electric, #3E00EE);
+    text-decoration: none;
+  }
+
+  h1, h2, h3 {
+    page-break-after: avoid;
+  }
+
+  table, figure, blockquote {
+    page-break-inside: avoid;
+  }
+}
+
+/* ============================
+   FRONT MATTER STYLING
+   ============================ */
+
+/* Half title (bastard title) */
+.half-title {
+  page-break-before: always;
+  page-break-after: always;
+  text-align: center;
+  padding-top: 40%;
+}
+
+.half-title-text {
+  font-family: var(--font-display, "Helvetica Neue", sans-serif);
+  font-size: 32pt;
+  font-weight: 500;
+  color: var(--color-primary, #070325);
+}
+
+/* Title page */
+.title-page {
+  page-break-before: always;
+  page-break-after: always;
+  text-align: center;
+  padding-top: 8%;
+}
+
+.title-page-title {
+  font-family: var(--font-display, "Helvetica Neue", sans-serif);
+  font-size: 42pt;
+  font-weight: 600;
+  color: var(--color-primary, #070325);
+  margin-bottom: 0.2em;
+}
+
+.title-page-subtitle {
+  font-family: var(--font-display, "Helvetica Neue", sans-serif);
+  font-size: 24pt;
+  font-weight: 400;
+  color: var(--color-accent, #A88500);
+  margin-top: 0;
+}
+
+.title-page-description {
+  font-family: var(--font-body, "Helvetica Neue", sans-serif);
+  font-size: 12pt;
+  font-weight: 500;
+  color: var(--color-heading, #151824);
+  margin: 2em 0;
+}
+
+.title-page-author {
+  font-family: var(--font-body, "Helvetica Neue", sans-serif);
+  font-size: 14pt;
+  color: var(--color-text, #616773);
+  margin: 1em 0;
+}
+
+.title-page-publisher {
+  font-family: var(--font-body, "Helvetica Neue", sans-serif);
+  font-size: 12pt;
+  color: var(--color-text, #616773);
+  margin-top: 3em;
+}
+
+/* 3D TTF Table on Title Page */
+.ttf-3d {
+  perspective: 800px;
+  margin: 0 auto 2em auto;
+  width: 85%;
+}
+
+.ttf-3d table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  transform: rotateX(45deg) rotateZ(-5deg);
+  transform-style: preserve-3d;
+  box-shadow:
+    0 20px 40px rgba(7, 3, 37, 0.3),
+    0 10px 20px rgba(7, 3, 37, 0.2);
+  margin: 0;
+  font-size: 9pt;
+}
+
+.ttf-3d th {
+  background: linear-gradient(135deg, var(--color-primary, #070325) 0%, var(--color-secondary, #2B024D) 100%);
+  color: white;
+  padding: 0.6em 0.8em;
+  font-family: var(--font-display, "Helvetica Neue", sans-serif);
+  font-weight: 600;
+  font-size: 10pt;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: none;
+  transform: translateZ(8px);
+}
+
+.ttf-3d th:first-child {
+  border-radius: 6px 0 0 0;
+}
+
+.ttf-3d th:last-child {
+  border-radius: 0 6px 0 0;
+}
+
+.ttf-3d td {
+  background: white;
+  padding: 0.5em 0.8em;
+  border: none;
+  border-bottom: 1px solid rgba(168, 133, 0, 0.3);
+  color: var(--color-heading, #151824);
+  font-weight: 500;
+}
+
+.ttf-3d tr:nth-child(1) td {
+  background: linear-gradient(90deg, rgba(168, 133, 0, 0.1) 0%, white 100%);
+  color: var(--color-accent-dark, #735B00);
+  font-weight: 600;
+}
+
+.ttf-3d tr:nth-child(2) td {
+  background: linear-gradient(90deg, rgba(97, 103, 115, 0.1) 0%, white 100%);
+  color: var(--color-text, #616773);
+  font-style: italic;
+}
+
+.ttf-3d tr:last-child td:first-child {
+  border-radius: 0 0 0 6px;
+}
+
+.ttf-3d tr:last-child td:last-child {
+  border-radius: 0 0 6px 0;
+}
+
+/* Project info table */
+.project-info {
+  page-break-before: always;
+  margin-top: 20%;
+}
+
+.project-info table {
+  width: 80%;
+  margin: 0 auto;
+  border: none;
+  font-size: 10pt;
+}
+
+.project-info td, .project-info th {
+  border: none;
+  padding: 0.3em 0.5em;
+  vertical-align: top;
+}
+
+.project-info td:first-child {
+  width: 40%;
+  color: var(--color-text, #616773);
+}
+
+.project-info td:last-child {
+  color: var(--color-heading, #151824);
+  font-weight: 500;
+}
+
+/* Document history */
+.document-history {
+  page-break-before: always;
+}
+
+.document-history h2 {
+  font-size: 14pt;
+  border-bottom: 1px solid var(--color-accent, #A88500);
+}
+
+.document-history table {
+  font-size: 9pt;
+}
+
+/* Contributors */
+.contributors {
+  margin-top: 2em;
+}
+
+.contributors h2 {
+  font-size: 14pt;
+  border-bottom: 1px solid var(--color-accent, #A88500);
+}
+
+.contributors table {
+  font-size: 9pt;
+}
+
+
+/* Table of Contents styling */
+nav[role="doc-toc"] {
+  page-break-before: always;
+  font-family: var(--font-body, "Helvetica Neue", sans-serif);
+}
+
+nav[role="doc-toc"] h2 {
+  font-size: 18pt;
+  color: var(--color-primary, #070325);
+  border-bottom: 2px solid var(--color-accent, #A88500);
+  margin-bottom: 1em;
+  page-break-before: avoid;
+}
+
+nav[role="doc-toc"] p {
+  margin: 0.8em 0 0.3em 0;
+  font-family: var(--font-body, "Helvetica Neue", sans-serif);
+}
+
+nav[role="doc-toc"] p strong {
+  font-family: var(--font-display, "Helvetica Neue", sans-serif);
+  font-size: 11pt;
+  color: var(--color-secondary, #2B024D);
+}
+
+nav[role="doc-toc"] ul,
+nav[role="doc-toc"] ol {
+  list-style: none;
+  padding-left: 1.5em;
+  margin: 0 0 0.5em 0;
+}
+
+nav[role="doc-toc"] li {
+  margin: 0.2em 0;
+  font-size: 10pt;
+  font-family: var(--font-body, "Helvetica Neue", sans-serif);
+  color: var(--color-text, #616773);
+}
+
+nav[role="doc-toc"] li a {
+  color: var(--color-heading, #151824);
+  text-decoration: none;
+}
+
+nav[role="doc-toc"] li a::after {
+  content: leader(dotted) target-counter(attr(href url), page);
+}
+
+/* ============================
+   BACK MATTER STYLING
+   ============================ */
+
+/* Suggested reading */
+#suggested-reading h2 {
+  font-size: 12pt;
+  color: var(--color-secondary, #2B024D);
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  border-bottom: none;
+  page-break-after: avoid;
+  break-after: avoid;
+}
+
+#suggested-reading ul {
+  list-style: none;
+  padding-left: 0;
+  page-break-before: avoid;
+  break-before: avoid;
+}
+
+#suggested-reading li {
+  margin-bottom: 0.8em;
+  font-size: 9pt;
+  text-indent: -1em;
+  padding-left: 1em;
+}
+
+/* Intermezzo */
+.intermezzo {
+  page-break-before: always;
+}
+
+.intermezzo h1 {
+  page-break-before: avoid;
+}
+
+/* Glossary */
+#glossary {
+  page-break-before: always;
+}
+
+#glossary h1 {
+  font-size: 20pt;
+  page-break-before: avoid;
+  margin-bottom: 1em;
+}
+
+#glossary p {
+  margin-bottom: 0.8em;
+  font-size: 10pt;
+  text-indent: 0;
+}
+
+#glossary p strong {
+  color: var(--color-secondary, #2B024D);
+}
+
+/* Index */
+#index {
+  page-break-before: always;
+  column-count: 2;
+  column-gap: 2em;
+}
+
+#index h1 {
+  column-span: all;
+  font-size: 20pt;
+  page-break-before: avoid;
+}
+
+#index p strong {
+  font-size: 12pt;
+  color: var(--color-secondary, #2B024D);
+  display: block;
+  margin-top: 1em;
+  margin-bottom: 0.3em;
+}
+
+#index ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+#index li {
+  font-size: 9pt;
+  margin-bottom: 0.2em;
+}
+
+/* Index term markers (invisible in output) */
+.idx {
+  /* Terms marked for indexing - no visual change */
+}
+
+/* ============================
+   BOOK COVERS
+   ============================ */
+
+/* Front Cover */
+.front-cover {
+  page-break-before: always;
+  page-break-after: always;
+  background: linear-gradient(135deg, var(--color-primary, #070325) 0%, var(--color-secondary, #2B024D) 50%, var(--color-navy, #06172E) 100%);
+  min-height: 100vh;
+  margin: -20mm -15mm -25mm -15mm;
+  padding: 20mm 15mm 25mm 15mm;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.front-cover::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(168, 133, 0, 0.15) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(62, 0, 238, 0.1) 0%, transparent 40%);
+  pointer-events: none;
+}
+
+.front-cover .cover-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  width: 100%;
+}
+
+.front-cover .cover-title {
+  font-family: var(--font-display, "Helvetica Neue", sans-serif);
+  font-size: 48pt;
+  font-weight: 700;
+  color: white;
+  margin: 0.3em 0 0.1em 0;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.front-cover .cover-subtitle-main {
+  font-family: var(--font-display, "Helvetica Neue", sans-serif);
+  font-size: 24pt;
+  font-weight: 400;
+  color: var(--color-accent, #A88500);
+  margin: 0 0 1em 0;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.front-cover .cover-subtitle {
+  font-family: var(--font-body, "Helvetica Neue", sans-serif);
+  font-size: 11pt;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 1.5em 0;
+  line-height: 1.6;
+}
+
+.front-cover .cover-author {
+  font-family: var(--font-display, "Helvetica Neue", sans-serif);
+  font-size: 16pt;
+  font-weight: 500;
+  color: white;
+  margin: 2em 0 0.5em 0;
+}
+
+.front-cover .publisher-badge {
+  font-family: var(--font-display, "Helvetica Neue", sans-serif);
+  font-size: 10pt;
+  color: var(--color-accent, #A88500);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  margin-top: 1em;
+  padding: 0.5em 1.5em;
+  border: 1px solid var(--color-accent, #A88500);
+  display: inline-block;
+}
+
+/* 3D TTF on cover - enhanced */
+.front-cover .ttf-3d {
+  perspective: 1000px;
+  margin: 2em auto;
+  width: 80%;
+}
+
+.front-cover .ttf-3d table {
+  transform: rotateX(50deg) rotateZ(-3deg);
+  box-shadow:
+    0 30px 60px rgba(0, 0, 0, 0.5),
+    0 15px 30px rgba(0, 0, 0, 0.3);
+}
+
+.front-cover .ttf-3d th {
+  background: linear-gradient(135deg, var(--color-accent, #A88500) 0%, var(--color-accent-dark, #735B00) 100%);
+  color: white;
+}
+
+.front-cover .ttf-3d td {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* Back Cover */
+.back-cover {
+  page-break-before: always;
+  background: linear-gradient(135deg, var(--color-navy, #06172E) 0%, var(--color-primary, #070325) 50%, var(--color-secondary, #2B024D) 100%);
+  min-height: 100vh;
+  margin: -20mm -15mm -25mm -15mm;
+  padding: 20mm 15mm 25mm 15mm;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.back-cover::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at 80% 20%, rgba(168, 133, 0, 0.1) 0%, transparent 40%),
+    radial-gradient(circle at 20% 80%, rgba(62, 0, 238, 0.08) 0%, transparent 40%);
+  pointer-events: none;
+}
+
+.back-cover .cover-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  width: 85%;
+  max-width: 300px;
+}
+
+.back-cover-text {
+  font-family: var(--font-body, "Helvetica Neue", sans-serif);
+  font-size: 11pt;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.8;
+  text-align: left;
+}
+
+.back-cover-text strong {
+  font-family: var(--font-display, "Helvetica Neue", sans-serif);
+  font-size: 14pt;
+  font-weight: 600;
+  color: white;
+  display: block;
+  margin-bottom: 1em;
+}
+
+.back-cover-text em {
+  display: block;
+  margin-top: 1.5em;
+  font-size: 12pt;
+  color: var(--color-accent, #A88500);
+  text-align: center;
+}
+
+.back-cover .publisher-badge {
+  font-family: var(--font-display, "Helvetica Neue", sans-serif);
+  font-size: 14pt;
+  font-weight: 600;
+  color: var(--color-accent, #A88500);
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  margin-top: 2em;
+}
+
+.back-cover .endorsements {
+  margin-top: 1.5em;
+  padding-top: 1em;
+  border-top: 1px solid rgba(168, 133, 0, 0.3);
+  text-align: left;
+  font-size: 9pt;
+  line-height: 1.5;
+}
+
+.back-cover .endorsements em {
+  color: rgba(255, 255, 255, 0.85);
+  display: block;
+  margin-bottom: 0.2em;
+  font-size: 9pt;
+  text-align: left;
+}
+
+.back-cover .endorsements strong {
+  color: var(--color-accent, #A88500);
+  font-size: 8pt;
+  font-weight: 500;
+}
+
+/* Colophon styling */
+.colophon {
+  page-break-before: always;
+  font-size: 9pt;
+}
+
+.colophon h1 {
+  font-size: 18pt;
+  page-break-before: avoid;
+}
+
+.colophon table {
+  font-size: 9pt;
+  margin: 1em 0;
+}
+
+/* Suppress headers/footers on covers */
+@page cover {
+  @top-center { content: none; }
+  @bottom-center { content: none; }
+}
+
+.front-cover, .back-cover {
+  page: cover;
+}

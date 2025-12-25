@@ -1,0 +1,81 @@
+/* Brand-specific styles */
+/* Customize this file for your book's branding */
+
+/* Local Fonts - Baloo Bhai 2 */
+@font-face {
+  font-family: "Baloo Bhai 2";
+  src: url("../fonts/BalooBhai2-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Baloo Bhai 2";
+  src: url("../fonts/BalooBhai2-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Baloo Bhai 2";
+  src: url("../fonts/BalooBhai2-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+/* Local Fonts - Montserrat */
+@font-face {
+  font-family: "Montserrat";
+  src: url("../fonts/Montserrat-Light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Montserrat";
+  src: url("../fonts/Montserrat-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Montserrat";
+  src: url("../fonts/Montserrat-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Montserrat";
+  src: url("../fonts/Montserrat-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Montserrat";
+  src: url("../fonts/Montserrat-Italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+}
+
+/* Color Palette - customize for your book */
+:root {
+  --color-primary: #1a1a2e;
+  --color-secondary: #16213e;
+  --color-accent: #e94560;
+  --color-accent-dark: #c73e54;
+  --color-text: #4a4a4a;
+  --color-heading: #1a1a2e;
+  --font-display: "Baloo Bhai 2", "Helvetica Neue", sans-serif;
+  --font-body: "Montserrat", "Helvetica Neue", sans-serif;
+}
+
+/* Publisher badge (optional) */
+.publisher-badge {
+  font-family: var(--font-display);
+  font-size: 10pt;
+  color: var(--color-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
